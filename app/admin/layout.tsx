@@ -32,11 +32,13 @@ export default async function AdminLayout({
   if (!user) redirect("/auth/login?redirect=/admin")
 
   // Double-check admin role from DB
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("*")
     .eq("id", user.id)
     .single<Profile>()
+
+  console.log("[v0] Admin layout - user:", user.id, "profile:", profile, "profileError:", profileError)
 
   if (profile?.role !== "admin") redirect("/")
 
