@@ -54,7 +54,7 @@ export default function LoginPage() {
           <div className="mb-6">
             <h1 className="text-xl font-bold text-foreground">Inicia sesion</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Accede a tu cuenta para gestionar tus reservas
+              Accede a tu cuenta para gestionar tus reservas.
             </p>
           </div>
 
