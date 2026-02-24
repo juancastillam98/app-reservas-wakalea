@@ -5,12 +5,14 @@ import { CalendarDays } from "lucide-react"
 export default async function AdminReservasPage() {
   const supabase = await createClient()
 
-  const { data: bookings } = await supabase
+  const { data: bookings, error } = await supabase
     .from("bookings")
     .select(
-      "*, experiences(title, slug), profiles:user_id(first_name, last_name)"
+      "*, experiences(title, slug)"
     )
     .order("created_at", { ascending: false })
+
+  console.log("[v0] Admin reservas - bookings:", bookings, "error:", error)
 
   const typedBookings = bookings ?? []
 
@@ -71,9 +73,7 @@ export default async function AdminReservasPage() {
                       {b.experiences?.title ?? "—"}
                     </td>
                     <td className="px-4 py-3 text-foreground">
-                      {b.guest_name ??
-                        `${b.profiles?.first_name ?? ""} ${b.profiles?.last_name ?? ""}`.trim() ||
-                        "—"}
+                      {b.guest_name || "—"}
                     </td>
                     <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">
                       {b.guest_email ?? "—"}
