@@ -1,9 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
-import { Menu, X, Search, User } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Menu, X, Search, User, LayoutDashboard } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { createClient } from "@/lib/supabase/client"
 
 const navLinks = [
   { href: "/experiencias", label: "Experiencias" },
@@ -14,6 +15,14 @@ const navLinks = [
 
 export function SiteHeader() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [user, setUser] = useState<{ email?: string } | null>(null)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user)
+    })
+  }, [])
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80">
@@ -47,13 +56,23 @@ export function SiteHeader() {
           >
             <Search className="h-[18px] w-[18px]" />
           </Link>
-          <Link
-            href="/auth/login"
-            className="flex h-9 items-center gap-2 rounded-full bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            <User className="h-4 w-4" />
-            <span>Acceder</span>
-          </Link>
+          {user ? (
+            <Link
+              href="/dashboard"
+              className="flex h-9 items-center gap-2 rounded-full bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            >
+              <LayoutDashboard className="h-4 w-4" />
+              <span>Mi cuenta</span>
+            </Link>
+          ) : (
+            <Link
+              href="/auth/login"
+              className="flex h-9 items-center gap-2 rounded-full bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            >
+              <User className="h-4 w-4" />
+              <span>Acceder</span>
+            </Link>
+          )}
         </div>
 
         {/* Mobile menu button */}
@@ -90,14 +109,25 @@ export function SiteHeader() {
             </Link>
           ))}
           <div className="mt-3 border-t border-border/60 pt-3">
-            <Link
-              href="/auth/login"
-              onClick={() => setMobileOpen(false)}
-              className="flex h-10 items-center justify-center gap-2 rounded-xl bg-primary text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-            >
-              <User className="h-4 w-4" />
-              <span>Acceder</span>
-            </Link>
+            {user ? (
+              <Link
+                href="/dashboard"
+                onClick={() => setMobileOpen(false)}
+                className="flex h-10 items-center justify-center gap-2 rounded-xl bg-primary text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                <span>Mi cuenta</span>
+              </Link>
+            ) : (
+              <Link
+                href="/auth/login"
+                onClick={() => setMobileOpen(false)}
+                className="flex h-10 items-center justify-center gap-2 rounded-xl bg-primary text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+              >
+                <User className="h-4 w-4" />
+                <span>Acceder</span>
+              </Link>
+            )}
           </div>
         </nav>
       </div>
