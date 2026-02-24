@@ -29,7 +29,7 @@ const trustItems = [
 
 export function TrustSection() {
   return (
-    <section className="mx-auto max-w-7xl px-4 py-16 lg:px-8 lg:py-24">
+    <section className="mx-auto max-w-8xl px-4 py-16 lg:px-8 lg:py-24">
       <div className="mb-10 text-center">
         <h2 className="text-balance text-3xl font-bold tracking-tight text-foreground md:text-4xl">
           Por que reservar con Wakalea

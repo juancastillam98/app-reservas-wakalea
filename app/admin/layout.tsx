@@ -9,6 +9,8 @@ import {
   UserCircle,
   LogOut,
   Plus,
+  Globe,
+  Tag,
 } from "lucide-react"
 import type { Profile } from "@/lib/types"
 
@@ -17,6 +19,8 @@ const sidebarLinks = [
   { href: "/admin/experiencias", label: "Experiencias", icon: Mountain },
   { href: "/admin/reservas", label: "Reservas", icon: CalendarDays },
   { href: "/admin/leads", label: "Leads", icon: Mail },
+  { href: "/admin/regiones", label: "Regiones", icon: Globe },
+  { href: "/admin/categorias", label: "Categorías", icon: Tag },
 ]
 
 export default async function AdminLayout({

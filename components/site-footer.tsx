@@ -29,7 +29,7 @@ const footerLinks = {
 export function SiteFooter() {
   return (
     <footer className="border-t border-border/60 bg-secondary/50">
-      <div className="mx-auto max-w-7xl px-4 py-12 lg:px-8 lg:py-16">
+      <div className="mx-auto max-w-8xl px-4 py-12 lg:px-8 lg:py-16">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4 lg:gap-12">
           {/* Regiones */}
           <div>

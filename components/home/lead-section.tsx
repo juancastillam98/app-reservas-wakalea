@@ -32,7 +32,7 @@ export function LeadSection() {
 
   return (
     <section className="bg-primary py-16 lg:py-24">
-      <div className="mx-auto max-w-7xl px-4 text-center lg:px-8">
+      <div className="mx-auto max-w-8xl px-4 text-center lg:px-8">
         <h2 className="text-balance text-3xl font-bold tracking-tight text-primary-foreground md:text-4xl">
           Descubre ofertas exclusivas
         </h2>

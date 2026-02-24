@@ -34,7 +34,7 @@ export default async function DashboardLayout({
     <div className="min-h-screen bg-background">
       {/* Top bar */}
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/95 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
+        <div className="mx-auto flex h-16 max-w-8xl items-center justify-between px-4 lg:px-8">
           <div className="flex items-center gap-4">
             <Link href="/" className="text-xl font-bold tracking-tight text-primary">
               Wakalea
@@ -60,7 +60,7 @@ export default async function DashboardLayout({
         </div>
       </header>
 
-      <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-8 lg:flex-row lg:px-8">
+      <div className="mx-auto flex max-w-8xl flex-col gap-8 px-4 py-8 lg:flex-row lg:px-8">
         {/* Sidebar */}
         <aside className="w-full shrink-0 lg:w-56">
           <nav className="flex gap-1 lg:flex-col">

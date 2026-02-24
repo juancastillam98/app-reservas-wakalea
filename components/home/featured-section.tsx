@@ -10,7 +10,7 @@ interface FeaturedSectionProps {
 export function FeaturedSection({ experiences }: FeaturedSectionProps) {
   return (
     <section className="bg-secondary/30 py-16 lg:py-24">
-      <div className="mx-auto max-w-7xl px-4 lg:px-8">
+      <div className="mx-auto max-w-8xl px-4 lg:px-8">
         <div className="mb-10 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
           <div>
             <h2 className="text-balance text-3xl font-bold tracking-tight text-foreground md:text-4xl">

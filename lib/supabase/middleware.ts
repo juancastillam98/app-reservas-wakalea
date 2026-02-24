@@ -29,25 +29,28 @@ export async function updateSession(request: NextRequest) {
     },
   )
 
+  // Use getSession() for routing decisions — reads JWT from cookie locally,
+  // no network call to Supabase. This is safe for redirects only.
+  // getUser() (server-side validation) is still used in each protected layout.
   const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    data: { session },
+  } = await supabase.auth.getSession()
 
-  // Protect /dashboard (client area) and /admin routes
-  if (
-    (request.nextUrl.pathname.startsWith('/dashboard') ||
-      request.nextUrl.pathname.startsWith('/admin')) &&
-    !user
-  ) {
+  const pathname = request.nextUrl.pathname
+  const isProtected =
+    pathname.startsWith('/dashboard') || pathname.startsWith('/admin')
+
+  // Redirect to login if not authenticated
+  if (isProtected && !session) {
     const url = request.nextUrl.clone()
     url.pathname = '/auth/login'
-    url.searchParams.set('redirect', request.nextUrl.pathname)
+    url.searchParams.set('redirect', pathname)
     return NextResponse.redirect(url)
   }
 
-  // Protect /admin routes — only users with is_admin metadata
-  if (request.nextUrl.pathname.startsWith('/admin') && user) {
-    const isAdmin = user.user_metadata?.is_admin === true
+  // Quick admin check from JWT metadata (no extra network call)
+  if (pathname.startsWith('/admin') && session) {
+    const isAdmin = session.user?.user_metadata?.is_admin === true
     if (!isAdmin) {
       const url = request.nextUrl.clone()
       url.pathname = '/'

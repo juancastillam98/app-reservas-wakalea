@@ -1,6 +1,7 @@
 import Link from "next/link"
-import { CheckCircle2, CalendarDays, Users, Download } from "lucide-react"
+import { CheckCircle2, CalendarDays, Users } from "lucide-react"
 import { formatPrice } from "@/lib/format"
+import { DownloadBookingPdf } from "@/components/checkout/download-booking-pdf"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -57,10 +58,10 @@ export default async function ConfirmacionPage({ searchParams }: PageProps) {
             <span className="font-medium text-foreground">
               {date
                 ? new Date(date).toLocaleDateString("es-ES", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })
                 : "Por confirmar"}
             </span>
           </div>
@@ -102,14 +103,14 @@ export default async function ConfirmacionPage({ searchParams }: PageProps) {
         </Link>
       </div>
 
-      {/* Mock download */}
-      <button
-        type="button"
-        className="mt-4 inline-flex items-center gap-1.5 text-sm text-primary hover:text-primary/80"
-      >
-        <Download className="h-4 w-4" />
-        Descargar confirmacion (PDF)
-      </button>
+      <DownloadBookingPdf
+        title={title}
+        name={name}
+        date={date}
+        guests={guests}
+        total={formatPrice(total)}
+        experience={experienceSlug}
+      />
     </div>
   )
 }

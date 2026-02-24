@@ -23,7 +23,7 @@ export function HeroSection({ regions }: HeroSectionProps) {
       <div className="absolute inset-0 bg-gradient-to-b from-foreground/60 via-foreground/40 to-foreground/70" />
 
       {/* Content */}
-      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col items-center px-4 py-24 text-center lg:px-8">
+      <div className="relative z-10 mx-auto flex w-full max-w-8xl flex-col items-center px-4 py-24 text-center lg:px-8">
         <span className="mb-4 inline-block rounded-full border border-primary-foreground/30 px-4 py-1.5 text-xs font-medium uppercase tracking-widest text-primary-foreground/90">
           Ecoturismo en Espana
         </span>

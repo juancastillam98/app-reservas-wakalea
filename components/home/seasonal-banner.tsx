@@ -3,7 +3,7 @@ import { ArrowRight, Sun } from "lucide-react"
 
 export function SeasonalBanner() {
   return (
-    <section className="mx-auto max-w-7xl px-4 py-16 lg:px-8 lg:py-24">
+    <section className="mx-auto max-w-8xl px-4 py-16 lg:px-8 lg:py-24">
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary to-primary/80 px-6 py-12 md:px-12 md:py-16">
         {/* Decorative circles */}
         <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-primary-foreground/5" />

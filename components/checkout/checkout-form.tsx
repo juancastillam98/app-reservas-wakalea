@@ -11,6 +11,7 @@ import {
   Loader2,
   CalendarDays,
   Users,
+  CheckCircle2,
 } from "lucide-react"
 import type { Experience } from "@/lib/types"
 
@@ -26,6 +27,7 @@ export function CheckoutForm() {
   const [experience, setExperience] = useState<Experience | null>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   // Guest info
   const [guestName, setGuestName] = useState("")
@@ -50,25 +52,51 @@ export function CheckoutForm() {
       setLoading(false)
     }
     loadExperience()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [experienceSlug])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!experience) return
     setSubmitting(true)
+    setSubmitError(null)
 
-    // In production, this would redirect to Redsys TPV
-    // For now, simulate a successful payment
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    const totalCentsValue = experience.price_cents * guestsParam
+    const isFree = experience.price_cents === 0
 
-    // Redirect to confirmation with mock data
+    // Get current user (optional - booking can be anonymous)
+    const { data: { user } } = await supabase.auth.getUser()
+
+    // Insert real booking in Supabase
+    const { error: bookingError } = await supabase.from("bookings").insert({
+      experience_id: experience.id,
+      user_id: user?.id ?? null,
+      booking_date: dateParam || new Date().toISOString().split("T")[0],
+      guests: guestsParam,
+      total_cents: totalCentsValue,
+      status: "confirmed",
+      payment_method: isFree ? "free" : "card_mock",
+      payment_reference: isFree ? null : `MOCK-${Date.now()}`,
+      guest_name: guestName,
+      guest_email: guestEmail,
+      guest_phone: guestPhone,
+      notes: null,
+    })
+
+    if (bookingError) {
+      console.error("[checkout] bookingError:", bookingError)
+      setSubmitError(bookingError.message)
+      setSubmitting(false)
+      return
+    }
+
+    // Redirect to confirmation
     const params = new URLSearchParams({
       experience: experience.slug,
       title: experience.title,
       date: dateParam,
       guests: guestsParam.toString(),
-      total: (experience.price_cents * guestsParam).toString(),
+      total: totalCentsValue.toString(),
       name: guestName,
     })
     router.push(`/checkout/confirmacion?${params.toString()}`)
@@ -85,12 +113,13 @@ export function CheckoutForm() {
   if (!experience) {
     return (
       <div className="rounded-2xl border border-border/60 bg-card p-8 text-center">
-        <p className="text-foreground">No se encontro la experiencia.</p>
+        <p className="text-foreground">No se encontró la experiencia.</p>
       </div>
     )
   }
 
   const totalCents = experience.price_cents * guestsParam
+  const isFree = experience.price_cents === 0
 
   return (
     <form onSubmit={handleSubmit}>
@@ -141,7 +170,7 @@ export function CheckoutForm() {
                     htmlFor="guest-phone"
                     className="mb-1.5 block text-sm font-medium text-foreground"
                   >
-                    Telefono
+                    Teléfono
                   </label>
                   <input
                     id="guest-phone"
@@ -156,83 +185,99 @@ export function CheckoutForm() {
             </div>
           </div>
 
-          {/* Payment mock (prepared for Redsys) */}
-          <div className="rounded-2xl border border-border/60 bg-card p-6 shadow-sm">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-foreground">
-                Datos de pago
-              </h2>
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Lock className="h-3.5 w-3.5" />
-                Pago seguro
+          {/* Payment — only when price > 0 */}
+          {!isFree ? (
+            <div className="rounded-2xl border border-border/60 bg-card p-6 shadow-sm">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-foreground">
+                  Datos de pago
+                </h2>
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Lock className="h-3.5 w-3.5" />
+                  Pago seguro
+                </div>
+              </div>
+              <p className="mb-4 rounded-lg bg-secondary px-3 py-2 text-xs text-muted-foreground">
+                Entorno de prueba. En producción, este paso redirigirá al TPV de
+                Redsys para un pago seguro.
+              </p>
+              <div className="flex flex-col gap-4">
+                <div>
+                  <label
+                    htmlFor="card-number"
+                    className="mb-1.5 block text-sm font-medium text-foreground"
+                  >
+                    Número de tarjeta
+                  </label>
+                  <div className="relative">
+                    <CreditCard className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <input
+                      id="card-number"
+                      type="text"
+                      placeholder="4242 4242 4242 4242"
+                      required
+                      value={cardNumber}
+                      onChange={(e) => setCardNumber(e.target.value)}
+                      maxLength={19}
+                      className="w-full rounded-xl border border-border bg-background py-3 pl-11 pr-4 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label
+                      htmlFor="card-expiry"
+                      className="mb-1.5 block text-sm font-medium text-foreground"
+                    >
+                      Caducidad
+                    </label>
+                    <input
+                      id="card-expiry"
+                      type="text"
+                      placeholder="MM/AA"
+                      required
+                      value={cardExpiry}
+                      onChange={(e) => setCardExpiry(e.target.value)}
+                      maxLength={5}
+                      className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="card-cvc"
+                      className="mb-1.5 block text-sm font-medium text-foreground"
+                    >
+                      CVC
+                    </label>
+                    <input
+                      id="card-cvc"
+                      type="text"
+                      placeholder="123"
+                      required
+                      value={cardCvc}
+                      onChange={(e) => setCardCvc(e.target.value)}
+                      maxLength={4}
+                      className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
-            <p className="mb-4 rounded-lg bg-secondary px-3 py-2 text-xs text-muted-foreground">
-              Entorno de prueba. En produccion, este paso redirigira al TPV de
-              Redsys para un pago seguro.
+          ) : (
+            <div className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-sm text-emerald-700">
+              <CheckCircle2 className="h-5 w-5 shrink-0" />
+              <p>
+                Esta experiencia es <strong>gratuita</strong>. No se requieren datos de pago.
+              </p>
+            </div>
+          )}
+
+          {/* Error message */}
+          {submitError && (
+            <p className="rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+              {submitError}
             </p>
-            <div className="flex flex-col gap-4">
-              <div>
-                <label
-                  htmlFor="card-number"
-                  className="mb-1.5 block text-sm font-medium text-foreground"
-                >
-                  Numero de tarjeta
-                </label>
-                <div className="relative">
-                  <CreditCard className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <input
-                    id="card-number"
-                    type="text"
-                    placeholder="4242 4242 4242 4242"
-                    required
-                    value={cardNumber}
-                    onChange={(e) => setCardNumber(e.target.value)}
-                    maxLength={19}
-                    className="w-full rounded-xl border border-border bg-background py-3 pl-11 pr-4 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label
-                    htmlFor="card-expiry"
-                    className="mb-1.5 block text-sm font-medium text-foreground"
-                  >
-                    Caducidad
-                  </label>
-                  <input
-                    id="card-expiry"
-                    type="text"
-                    placeholder="MM/AA"
-                    required
-                    value={cardExpiry}
-                    onChange={(e) => setCardExpiry(e.target.value)}
-                    maxLength={5}
-                    className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="card-cvc"
-                    className="mb-1.5 block text-sm font-medium text-foreground"
-                  >
-                    CVC
-                  </label>
-                  <input
-                    id="card-cvc"
-                    type="text"
-                    placeholder="123"
-                    required
-                    value={cardCvc}
-                    onChange={(e) => setCardCvc(e.target.value)}
-                    maxLength={4}
-                    className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+          )}
 
           {/* Submit button (mobile) */}
           <button
@@ -242,6 +287,8 @@ export function CheckoutForm() {
           >
             {submitting ? (
               <Loader2 className="h-4 w-4 animate-spin" />
+            ) : isFree ? (
+              "Confirmar reserva gratis"
             ) : (
               `Pagar ${formatPrice(totalCents)}`
             )}
@@ -275,10 +322,10 @@ export function CheckoutForm() {
                 <span className="font-medium text-foreground">
                   {dateParam
                     ? new Date(dateParam).toLocaleDateString("es-ES", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })
                     : "Sin fecha"}
                 </span>
               </div>
@@ -294,7 +341,7 @@ export function CheckoutForm() {
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Precio unitario</span>
                 <span className="text-foreground">
-                  {formatPrice(experience.price_cents)}
+                  {isFree ? "Gratis" : formatPrice(experience.price_cents)}
                 </span>
               </div>
             </div>
@@ -304,7 +351,7 @@ export function CheckoutForm() {
                 Total
               </span>
               <span className="text-xl font-bold text-foreground">
-                {formatPrice(totalCents)}
+                {isFree ? "0,00 €" : formatPrice(totalCents)}
               </span>
             </div>
 
@@ -316,6 +363,8 @@ export function CheckoutForm() {
             >
               {submitting ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
+              ) : isFree ? (
+                "Confirmar reserva gratis"
               ) : (
                 `Pagar ${formatPrice(totalCents)}`
               )}
@@ -323,7 +372,7 @@ export function CheckoutForm() {
 
             <div className="mt-4 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
               <ShieldCheck className="h-3.5 w-3.5" />
-              Cancelacion gratuita hasta 48h antes
+              Cancelación gratuita hasta 48h antes
             </div>
           </div>
         </aside>

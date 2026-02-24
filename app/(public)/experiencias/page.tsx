@@ -76,7 +76,7 @@ export default async function ExperienciasPage({ searchParams }: PageProps) {
   const resultCount = (experiences as Experience[])?.length || 0
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 lg:px-8 lg:py-12">
+    <div className="mx-auto max-w-8xl px-4 py-8 lg:px-8 lg:py-12">
       {/* Page header */}
       <div className="mb-8">
         <h1 className="text-balance text-3xl font-bold tracking-tight text-foreground md:text-4xl">

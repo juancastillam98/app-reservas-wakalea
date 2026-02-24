@@ -64,7 +64,7 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
     .limit(3)
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 lg:px-8 lg:py-10">
+    <div className="mx-auto max-w-8xl px-4 py-6 lg:px-8 lg:py-10">
       {/* Breadcrumbs */}
       <nav
         aria-label="Breadcrumb"
