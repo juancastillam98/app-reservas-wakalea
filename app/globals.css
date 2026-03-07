@@ -31,7 +31,7 @@
   --muted-foreground: oklch(0.50 0.02 60);
 
   /* Accent: earthy terracotta */
-  --accent: oklch(0.62 0.12 50);
+  --accent: #bf6e3e;
   --accent-foreground: oklch(0.98 0.005 85);
 
   /* Destructive */

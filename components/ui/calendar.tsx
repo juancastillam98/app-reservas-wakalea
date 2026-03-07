@@ -118,7 +118,7 @@ function Calendar({
           defaultClassNames.outside,
         ),
         disabled: cn(
-          'text-muted-foreground opacity-50',
+          'opacity-70',
           defaultClassNames.disabled,
         ),
         hidden: cn('invisible', defaultClassNames.hidden),

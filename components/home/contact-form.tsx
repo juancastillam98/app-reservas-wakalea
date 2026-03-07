@@ -18,6 +18,8 @@ export function ContactForm() {
         setError(null)
 
         const supabase = createClient()
+
+        // 1. Save to leads table
         const { error: dbError } = await supabase.from("leads").insert({
             name,
             email,
@@ -28,6 +30,18 @@ export function ContactForm() {
             setError("Ha ocurrido un error. Inténtalo de nuevo.")
             setSubmitting(false)
             return
+        }
+
+        // 2. Send email via Resend
+        try {
+            await fetch("/api/send-contact-email", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, email, message }),
+            })
+        } catch {
+            // Email failure is non-blocking — lead already saved
+            console.warn("Email send failed, but lead was saved")
         }
 
         setSent(true)
