@@ -24,6 +24,19 @@ export interface ItineraryStep {
   description: string
 }
 
+// ── Schedule types ──────────────────────────────────────────
+export interface TimeSlot {
+  start: string // "10:00"
+  reserved?: boolean // Indica si la hora está reservada (no disponible)
+}
+
+export type DaySchedule = Record<number, TimeSlot[]> // 0: Dom, 1: Lun, ... 6: Sáb
+
+export interface ExperienceSchedule {
+  days: DaySchedule
+}
+
+// ── Experience ──────────────────────────────────────────────
 export interface Experience {
   id: string
   title: string
@@ -42,7 +55,13 @@ export interface Experience {
   location: string | null
   latitude: number | null
   longitude: number | null
+  // Legacy image fields (kept for backward compat)
   images: string[]
+  // New image fields (Supabase Storage)
+  main_image_url: string | null
+  gallery_urls: string[]
+  // Schedule
+  schedule: ExperienceSchedule | null
   includes: string[]
   excludes: string[]
   highlights: string[]
@@ -68,12 +87,18 @@ export interface Profile {
   updated_at: string
 }
 
+// ── Booking ─────────────────────────────────────────────────
 export interface Booking {
   id: string
   user_id: string
   experience_id: string
   booking_date: string
+  booking_time: string | null
   guests: number
+  adults: number
+  children_0_5: number
+  children_6_12: number
+  children_13_17: number
   total_cents: number
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed'
   payment_method: string
@@ -81,6 +106,7 @@ export interface Booking {
   guest_name: string | null
   guest_email: string | null
   guest_phone: string | null
+  how_found: string | null
   notes: string | null
   created_at: string
   updated_at: string

@@ -1,31 +1,10 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
-import { Globe, Plus } from "lucide-react"
+import { Plus, Globe, Image as ImageIcon } from "lucide-react"
+import Image from "next/image"
+import { CreateRegionForm } from "@/components/admin/create-region-form"
 import { DeleteButton } from "@/components/admin/delete-button"
 import type { Region } from "@/lib/types"
-
-function slugify(text: string) {
-    return text
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, "")
-}
-
-async function createRegion(formData: FormData) {
-    "use server"
-    const supabase = await createClient()
-    const name = formData.get("name") as string
-    const description = (formData.get("description") as string) || null
-    if (!name) return
-    await supabase.from("regions").insert({
-        name,
-        slug: slugify(name),
-        description,
-    })
-    revalidatePath("/admin/regiones")
-}
 
 async function deleteRegion(formData: FormData) {
     "use server"
@@ -60,38 +39,7 @@ export default async function AdminRegionesPage() {
                 <h2 className="mb-4 text-base font-semibold text-foreground">
                     Nueva región
                 </h2>
-                <form action={createRegion} className="flex flex-col gap-4 sm:flex-row sm:items-end">
-                    <div className="flex flex-1 flex-col gap-1.5">
-                        <label htmlFor="region-name" className="text-sm font-medium text-foreground">
-                            Nombre *
-                        </label>
-                        <input
-                            id="region-name"
-                            name="name"
-                            required
-                            placeholder="Ej: Cataluña"
-                            className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                        />
-                    </div>
-                    <div className="flex flex-1 flex-col gap-1.5">
-                        <label htmlFor="region-description" className="text-sm font-medium text-foreground">
-                            Descripción
-                        </label>
-                        <input
-                            id="region-description"
-                            name="description"
-                            placeholder="Breve descripción opcional"
-                            className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                        />
-                    </div>
-                    <button
-                        type="submit"
-                        className="flex h-10 shrink-0 items-center gap-2 rounded-xl bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-                    >
-                        <Plus className="h-4 w-4" />
-                        Crear región
-                    </button>
-                </form>
+                <CreateRegionForm />
             </div>
 
             {/* Regions list */}
@@ -107,6 +55,9 @@ export default async function AdminRegionesPage() {
                     <table className="w-full text-sm">
                         <thead>
                             <tr className="border-b border-border bg-muted/50">
+                                <th className="w-16 px-4 py-3 text-left font-medium text-muted-foreground">
+                                    Foto
+                                </th>
                                 <th className="px-4 py-3 text-left font-medium text-muted-foreground">
                                     Nombre
                                 </th>
@@ -124,6 +75,23 @@ export default async function AdminRegionesPage() {
                         <tbody>
                             {typedRegions.map((region) => (
                                 <tr key={region.id} className="border-b border-border/60 last:border-0">
+                                    <td className="px-4 py-3">
+                                        <div className="relative h-10 w-10 overflow-hidden rounded-lg border border-border bg-secondary/30">
+                                            {region.image_url ? (
+                                                <Image
+                                                    src={region.image_url}
+                                                    alt={region.name}
+                                                    fill
+                                                    className="object-cover"
+                                                    sizes="40px"
+                                                />
+                                            ) : (
+                                                <div className="flex h-full w-full items-center justify-center">
+                                                    <ImageIcon className="h-4 w-4 text-muted-foreground/50" />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </td>
                                     <td className="px-4 py-3 font-medium text-foreground">
                                         {region.name}
                                     </td>
@@ -131,7 +99,7 @@ export default async function AdminRegionesPage() {
                                         {region.slug}
                                     </td>
                                     <td className="hidden px-4 py-3 text-muted-foreground md:table-cell">
-                                        {region.description ?? "—"}
+                                        <p className="line-clamp-1 max-w-xs">{region.description ?? "—"}</p>
                                     </td>
                                     <td className="px-4 py-3 text-right">
                                         <DeleteButton

@@ -231,6 +231,8 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
           </div>
         </section>
       )}
+
+
     </div>
   )
 }

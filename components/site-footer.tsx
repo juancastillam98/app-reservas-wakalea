@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { WhatsAppButton } from "./whatsapp-button"
 
 const footerLinks = {
   experiencias: [
@@ -121,6 +122,8 @@ export function SiteFooter() {
           </p>
         </div>
       </div>
+      {/* WhatsApp floating button */}
+      <WhatsAppButton />
     </footer>
   )
 }
